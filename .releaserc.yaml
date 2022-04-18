@@ -1,0 +1,19 @@
+repositoryUrl: https://github.com/gsmlg-dev/caddy-storage-s3.git
+plugins:
+  - "@semantic-release/commit-analyzer"
+  - "@semantic-release/release-notes-generator"
+  - "@semantic-release/github"
+  - - "@semantic-release/exec"
+    - "prepareCmd": >-
+        echo ${nextRelease.version};
+        mkdir -p build;
+        go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
+        xcaddy build master --output ./caddy --with github.com/gsmlg-dev/caddy-storage-s3
+      "publishCmd": "echo pubhlish gsmlg-cli ${nextRelease.version}"
+branches:
+  - +([0-9])?(.{+([0-9]),x}).x
+  - main
+  - next
+  - next-major
+  - { name: "beta", prerelease: true }
+  - { name: "alpha", prerelease: true }
