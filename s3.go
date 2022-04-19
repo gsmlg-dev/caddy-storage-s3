@@ -127,7 +127,7 @@ func (s3 S3) CertMagicStorage(ctx context.Context) (certmagic.Storage, error) {
 	return s3, nil
 }
 
-func (s3 S3) Lock(ctx context.Context, ctx context.Context, key string) error {
+func (s3 S3) Lock(ctx context.Context, key string) error {
 	return nil
 }
 
