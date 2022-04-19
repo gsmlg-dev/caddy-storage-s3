@@ -6,10 +6,9 @@ plugins:
   - - "@semantic-release/exec"
     - "prepareCmd": >-
         echo ${nextRelease.version};
-        mkdir -p build;
-        go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
-        xcaddy build master --output ./caddy --with github.com/gsmlg-dev/caddy-storage-s3
-      "publishCmd": "echo pubhlish gsmlg-cli ${nextRelease.version}"
+        go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest;
+        xcaddy build master --output ./caddy --with github.com/gsmlg-dev/caddy-storage-s3;
+      "publishCmd": "echo publish gsmlg-cli ${nextRelease.version}"
 branches:
   - +([0-9])?(.{+([0-9]),x}).x
   - main
