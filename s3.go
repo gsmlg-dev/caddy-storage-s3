@@ -128,10 +128,12 @@ func (s3 CaddyS3) CertMagicStorage() (certmagic.Storage, error) {
 }
 
 func (s3 CaddyS3) Lock(ctx context.Context, key string) error {
+	s3.logger.Debug(fmt.Sprintf("Lock: %s", key))
 	return nil
 }
 
 func (s3 CaddyS3) Unlock(ctx context.Context, key string) error {
+	s3.logger.Debug(fmt.Sprintf("Unlock: %s", key))
 	return nil
 }
 
@@ -192,6 +194,8 @@ func (s3 CaddyS3) List(ctx context.Context, prefix string, recursive bool) ([]st
 	for object := range objects {
 		keys = append(keys, object.Key)
 	}
+
+	s3.logger.Debug(fmt.Sprintf("List objects: %v", keys))
 
 	return keys, nil
 }
