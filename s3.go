@@ -106,9 +106,14 @@ func (s3 *CaddyS3) Provision(ctx caddy.Context) error {
 	})
 
 	if err != nil {
+		s3.logger.Debug(fmt.Sprintf("Provision error: %v", err))
 		return err
 	} else {
+		s3.logger.Debug(fmt.Sprintf("Provision client: %v", client))
 		s3.Client = client
+
+		list, err := s3.List(ctx, s3.Prefix, true)
+		s3.logger.Debug(fmt.Sprintf("Provision client list: %v\nerror: %v", list, err))
 	}
 
 	return nil
