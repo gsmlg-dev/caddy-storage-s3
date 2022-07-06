@@ -7,7 +7,7 @@ plugins:
     - "prepareCmd": >-
         echo ${nextRelease.version} ;
         go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest ;
-        xcaddy build master --output ./caddy --with github.com/gsmlg-dev/caddy-storage-s3=./ ;
+        xcaddy build v2.5.1 --output ./caddy --with github.com/gsmlg-dev/caddy-storage-s3=./ ;
       "publishCmd": "echo publish caddy-storage-s3 ${nextRelease.version}"
 branches:
   - +([0-9])?(.{+([0-9]),x}).x
