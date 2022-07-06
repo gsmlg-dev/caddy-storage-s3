@@ -128,21 +128,21 @@ func (CaddyS3) CaddyModule() caddy.ModuleInfo {
 	}
 }
 
-func (s3 CaddyS3) CertMagicStorage() (certmagic.Storage, error) {
+func (s3 *CaddyS3) CertMagicStorage() (certmagic.Storage, error) {
 	return s3, nil
 }
 
-func (s3 CaddyS3) Lock(ctx context.Context, key string) error {
+func (s3 *CaddyS3) Lock(ctx context.Context, key string) error {
 	s3.logger.Debug(fmt.Sprintf("Lock: %s", key))
 	return nil
 }
 
-func (s3 CaddyS3) Unlock(ctx context.Context, key string) error {
+func (s3 *CaddyS3) Unlock(ctx context.Context, key string) error {
 	s3.logger.Debug(fmt.Sprintf("Unlock: %s", key))
 	return nil
 }
 
-func (s3 CaddyS3) Store(ctx context.Context, key string, value []byte) error {
+func (s3 *CaddyS3) Store(ctx context.Context, key string, value []byte) error {
 	key = s3.KeyPrefix(key)
 	length := int64(len(value))
 
@@ -153,7 +153,7 @@ func (s3 CaddyS3) Store(ctx context.Context, key string, value []byte) error {
 	return err
 }
 
-func (s3 CaddyS3) Load(ctx context.Context, key string) ([]byte, error) {
+func (s3 *CaddyS3) Load(ctx context.Context, key string) ([]byte, error) {
 	key = s3.KeyPrefix(key)
 
 	s3.logger.Debug(fmt.Sprintf("Load key: %s", key))
@@ -167,7 +167,7 @@ func (s3 CaddyS3) Load(ctx context.Context, key string) ([]byte, error) {
 	return ioutil.ReadAll(object)
 }
 
-func (s3 CaddyS3) Delete(ctx context.Context, key string) error {
+func (s3 *CaddyS3) Delete(ctx context.Context, key string) error {
 	key = s3.KeyPrefix(key)
 
 	s3.logger.Debug(fmt.Sprintf("Delete key: %s", key))
@@ -175,7 +175,7 @@ func (s3 CaddyS3) Delete(ctx context.Context, key string) error {
 	return s3.Client.RemoveObject(ctx, s3.Bucket, key, minio.RemoveObjectOptions{})
 }
 
-func (s3 CaddyS3) Exists(ctx context.Context, key string) bool {
+func (s3 *CaddyS3) Exists(ctx context.Context, key string) bool {
 	key = s3.KeyPrefix(key)
 
 	_, err := s3.Client.StatObject(ctx, s3.Bucket, key, minio.StatObjectOptions{})
@@ -187,7 +187,7 @@ func (s3 CaddyS3) Exists(ctx context.Context, key string) bool {
 	return exists
 }
 
-func (s3 CaddyS3) List(ctx context.Context, prefix string, recursive bool) ([]string, error) {
+func (s3 *CaddyS3) List(ctx context.Context, prefix string, recursive bool) ([]string, error) {
 
 	objects := s3.Client.ListObjects(ctx, s3.Bucket, minio.ListObjectsOptions{
 		Prefix:    prefix,
@@ -205,7 +205,7 @@ func (s3 CaddyS3) List(ctx context.Context, prefix string, recursive bool) ([]st
 	return keys, nil
 }
 
-func (s3 CaddyS3) Stat(ctx context.Context, key string) (certmagic.KeyInfo, error) {
+func (s3 *CaddyS3) Stat(ctx context.Context, key string) (certmagic.KeyInfo, error) {
 	key = s3.KeyPrefix(key)
 
 	object, err := s3.Client.StatObject(ctx, s3.Bucket, key, minio.StatObjectOptions{})
@@ -226,6 +226,6 @@ func (s3 CaddyS3) Stat(ctx context.Context, key string) (certmagic.KeyInfo, erro
 	}, err
 }
 
-func (s3 CaddyS3) KeyPrefix(key string) string {
+func (s3 *CaddyS3) KeyPrefix(key string) string {
 	return s3.Prefix + "/" + key
 }
