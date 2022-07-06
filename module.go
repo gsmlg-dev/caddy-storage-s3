@@ -148,7 +148,7 @@ func (s *S3Storage) Validate() error {
 }
 
 func (s *S3Storage) Exists(ctx context.Context, key string) bool {
-	key = s.KeyPrefix(key)
+	key = s.Filename(key)
 
 	_, err := s.Client.StatObject(ctx, s.Bucket, key, minio.StatObjectOptions{})
 
@@ -160,7 +160,7 @@ func (s *S3Storage) Exists(ctx context.Context, key string) bool {
 }
 
 func (s3 *S3Storage) Store(ctx context.Context, key string, value []byte) error {
-	key = s3.KeyPrefix(key)
+	key = s3.Filename(key)
 	length := int64(len(value))
 
 	s3.logger.Debug(fmt.Sprintf("Store: %s, %d bytes", key, length))
@@ -171,7 +171,7 @@ func (s3 *S3Storage) Store(ctx context.Context, key string, value []byte) error 
 }
 
 func (s3 *S3Storage) Load(ctx context.Context, key string) ([]byte, error) {
-	key = s3.KeyPrefix(key)
+	key = s3.Filename(key)
 
 	s3.logger.Debug(fmt.Sprintf("Load key: %s", key))
 
@@ -191,7 +191,7 @@ func (s3 *S3Storage) Load(ctx context.Context, key string) ([]byte, error) {
 }
 
 func (s3 *S3Storage) Delete(ctx context.Context, key string) error {
-	key = s3.KeyPrefix(key)
+	key = s3.Filename(key)
 
 	s3.logger.Debug(fmt.Sprintf("Delete key: %s", key))
 
@@ -217,7 +217,7 @@ func (s3 *S3Storage) List(ctx context.Context, prefix string, recursive bool) ([
 }
 
 func (s3 *S3Storage) Stat(ctx context.Context, key string) (certmagic.KeyInfo, error) {
-	key = s3.KeyPrefix(key)
+	key = s3.Filename(key)
 
 	object, err := s3.Client.StatObject(ctx, s3.Bucket, key, minio.StatObjectOptions{})
 
@@ -238,15 +238,11 @@ func (s3 *S3Storage) Stat(ctx context.Context, key string) (certmagic.KeyInfo, e
 }
 
 func (s *S3Storage) Filename(key string) string {
-	return s.KeyPrefix(key)
-}
-
-func (s *S3Storage) KeyPrefix(key string) string {
 	return s.Prefix + "/" + key
 }
 
 func (s *S3Storage) Lock(ctx context.Context, key string) error {
-	key = s.KeyPrefix(key)
+	key = s.Filename(key)
 	s.logger.Debug(fmt.Sprintf("Lock: %s", key))
 
 	s.muLocks.Lock()
@@ -257,7 +253,7 @@ func (s *S3Storage) Lock(ctx context.Context, key string) error {
 }
 
 func (s *S3Storage) Unlock(ctx context.Context, key string) error {
-	key = s.KeyPrefix(key)
+	key = s.Filename(key)
 	s.logger.Debug(fmt.Sprintf("Unlock: %s", key))
 
 	s.muLocks.Lock()
