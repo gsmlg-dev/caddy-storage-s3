@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -177,10 +178,16 @@ func (s3 *S3Storage) Load(ctx context.Context, key string) ([]byte, error) {
 	object, err := s3.Client.GetObject(ctx, s3.Bucket, key, minio.GetObjectOptions{})
 
 	if err != nil {
+		s3.logger.Debug(fmt.Sprintf("Load key: %s; Error %v", key, err))
 		return nil, err
 	}
-
-	return ioutil.ReadAll(object)
+	s3.logger.Debug(fmt.Sprintf("Load key: %s; object %v", key, object))
+	b, err := ioutil.ReadAll(object)
+	if err != nil {
+		s3.logger.Debug(fmt.Sprintf("Load key: %s; ioutil.ReadAll Error %v", key, err))
+		return b, fs.ErrNotExist
+	}
+	return b, nil
 }
 
 func (s3 *S3Storage) Delete(ctx context.Context, key string) error {
