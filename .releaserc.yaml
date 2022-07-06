@@ -5,8 +5,8 @@ plugins:
   - "@semantic-release/github"
   - - "@semantic-release/exec"
     - "prepareCmd": >-
-        echo ${nextRelease.version};
-        go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest;
+        echo ${nextRelease.version} ;
+        go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest ;
         xcaddy build master --output ./caddy --with github.com/gsmlg-dev/caddy-storage-s3=./ ;
       "publishCmd": "echo publish caddy-storage-s3 ${nextRelease.version}"
 branches:
