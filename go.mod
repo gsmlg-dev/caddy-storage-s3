@@ -1,4 +1,4 @@
-module github.com/gsmlg-dev/caddy-storage-s3
+module github.com/wladimiravila/caddy-storage-s3
 
 go 1.24
 
