@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"io/fs"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
@@ -125,7 +127,7 @@ func (s *S3Storage) Provision(ctx caddy.Context) error {
 
 	// minio Client
 	client, err := minio.New(s.Host, &minio.Options{
-		Creds:  credentials.NewStaticV4(s.AccessID, s.SecretKey, ""),
+		Creds:  s.Credentials(),
 		Secure: secure,
 	})
 
@@ -145,6 +147,27 @@ func (s *S3Storage) Provision(ctx caddy.Context) error {
 
 func (s *S3Storage) Validate() error {
 	return nil
+}
+
+// Credentials returns the S3 credentials used by the client. Explicitly
+// configured credentials (Caddyfile/JSON, or the S3_ACCESS_ID/S3_SECRET_KEY
+// env vars) take priority. Otherwise, a standard AWS provider chain is used
+// so that temporary credentials from an EC2 IAM role (instance profile),
+// AWS_* environment variables, or the shared credentials file
+// (~/.aws/credentials) are picked up automatically — including the session
+// token and automatic refresh when they expire.
+func (s *S3Storage) Credentials() *credentials.Credentials {
+	if s.AccessID != "" && s.SecretKey != "" {
+		return credentials.NewStaticV4(s.AccessID, s.SecretKey, "")
+	}
+
+	return credentials.NewChainCredentials([]credentials.Provider{
+		&credentials.EnvAWS{},
+		// Fail fast when not running on EC2/ECS (the metadata service is
+		// unreachable), instead of letting the chain hang.
+		&credentials.IAM{Client: &http.Client{Timeout: 2 * time.Second}},
+		&credentials.FileAWSCredentials{},
+	})
 }
 
 func (s *S3Storage) Exists(ctx context.Context, key string) bool {
